@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic RAG: Interactive Project Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The SPA is designed as an interactive project roadmap, presented as a top-to-bottom narrative. It begins with the mission statement, flows into a vertical, interactive timeline representing the four project phases, provides a visual analysis of the projected effort per phase, and concludes with a clear call-to-action. This linear, timeline-based structure was chosen because it's the most intuitive way to represent a phased project plan, turning our static blueprint into an engaging and explorable journey. -->
+    <!-- Visualization & Content Choices: 
+        1. Report Info: The four project phases. Goal: Organize and present the project plan. Viz/Method: Interactive vertical timeline using HTML/CSS/JS. Interaction: Click to expand/collapse details for each phase. Justification: A timeline is a natural metaphor for a project plan. The interactivity encourages exploration and uses progressive disclosure to prevent information overload.
+        2. Report Info: Projected effort across technical domains for each phase. Goal: Compare and analyze the technical workload. Viz/Method: Stacked Bar Chart using Chart.js. Interaction: Hover tooltips provide specific effort percentages. Justification: This visualization adds a new analytical layer not present in the original text, offering an at-a-glance understanding of where our development efforts will be concentrated throughout the project lifecycle.
+        3. Report Info: Mission, objectives, and outcomes. Goal: Inform. Viz/Method: Structured text blocks. Interaction: None. Justification: Clear, well-formatted text is the best way to convey the core details and goals of the project.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f4;
+            color: #44403c;
+        }
+        .font-mono {
+            font-family: 'Space Mono', monospace;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 60vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .phase-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.7s ease-in-out, padding-top 0.7s ease, padding-bottom 0.7s ease;
+        }
+        .phase-content.open {
+            max-height: 1000px;
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 28px;
+            left: 19px;
+            width: 2px;
+            height: calc(100% + 2rem);
+            background-color: #d6d3d1;
+        }
+        .timeline-item:last-child::before {
+            display: none;
+        }
+        .timeline-marker {
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        .timeline-card.active .timeline-marker {
+            transform: scale(1.2);
+            background-color: #0d9488;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-stone-50/90 backdrop-blur-sm sticky top-0 z-50 border-b border-stone-200">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-teal-700 font-mono">Agentic RAG Project</h1>
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-semibold">
+                <a href="#mission" class="text-stone-600 hover:text-teal-700 transition-colors">Mission</a>
+                <a href="#roadmap" class="text-stone-600 hover:text-teal-700 transition-colors">Roadmap</a>
+                <a href="#analysis" class="text-stone-600 hover:text-teal-700 transition-colors">Analysis</a>
+                <a href="#start" class="text-stone-600 hover:text-teal-700 transition-colors">Begin</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="mission" class="py-20 md:py-28 text-center bg-stone-50">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-stone-800">Project Mission</h2>
+                <p class="mt-6 max-w-3xl mx-auto text-lg text-stone-600">
+                    To build an agentic Retrieval-Augmented Generation (RAG) system that transforms our static library of 2000+ research articles into a dynamic, explorable knowledge base for organizing research, analyzing methodologies, and simulating experiments.
+                </p>
+            </div>
+        </section>
+
+        <section id="roadmap" class="py-20 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h3 class="text-3xl md:text-4xl font-bold text-stone-800">Project Roadmap</h3>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-stone-600">
+                        This is our four-phase plan to bring the agentic RAG system to life. Each phase builds upon the last, moving from foundational data work to advanced simulation. Click on any phase to explore its objectives and desired outcomes.
+                    </p>
+                </div>
+                <div class="max-w-3xl mx-auto">
+                    <!-- Timeline Start -->
+                    <div id="timeline-container" class="space-y-8">
+                        <!-- Phase 1 -->
+                        <div class="timeline-item relative">
+                            <div class="timeline-card pl-16 relative" data-phase="1">
+                                <div class="timeline-marker absolute left-0 top-1 w-10 h-10 bg-stone-300 rounded-full border-4 border-white flex items-center justify-center font-mono font-bold text-white">1</div>
+                                <div class="bg-white rounded-lg border border-stone-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                                    <div class="p-6">
+                                        <h4 class="text-2xl font-bold text-teal-800">Phase 1: Foundation</h4>
+                                        <p class="mt-2 text-stone-600">Ingestion & Indexing</p>
+                                    </div>
+                                    <div class="phase-content bg-stone-50 px-6">
+                                        <h5 class="font-bold text-stone-700">Key Objectives:</h5>
+                                        <ul class="mt-2 list-disc list-inside text-stone-600 space-y-1">
+                                            <li>Automate ingestion of 2000+ articles (PDF, TXT, HTML).</li>
+                                            <li>Implement hierarchical chunking for semantic context.</li>
+                                            <li>Enrich all chunks with metadata (title, author, year, category).</li>
+                                            <li>Set up and populate a vector database for semantic search.</li>
+                                        </ul>
+                                        <h5 class="mt-4 font-bold text-stone-700">Desired Outcome:</h5>
+                                        <p class="mt-2 text-stone-600">A fully indexed, searchable knowledge base ready for the RAG system.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Phase 2 -->
+                        <div class="timeline-item relative">
+                            <div class="timeline-card pl-16 relative" data-phase="2">
+                                <div class="timeline-marker absolute left-0 top-1 w-10 h-10 bg-stone-300 rounded-full border-4 border-white flex items-center justify-center font-mono font-bold text-white">2</div>
+                                <div class="bg-white rounded-lg border border-stone-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                                    <div class="p-6">
+                                        <h4 class="text-2xl font-bold text-teal-800">Phase 2: The Agentic Core</h4>
+                                        <p class="mt-2 text-stone-600">Reasoning & Retrieval</p>
+                                    </div>
+                                    <div class="phase-content bg-stone-50 px-6">
+                                        <h5 class="font-bold text-stone-700">Key Objectives:</h5>
+                                        <ul class="mt-2 list-disc list-inside text-stone-600 space-y-1">
+                                            <li>Develop a primary query agent for intelligent request handling.</li>
+                                            <li>Implement a hybrid search mechanism (semantic + keyword).</li>
+                                            <li>Create a context validation agent to grade retrieval relevance.</li>
+                                            <li>Enable iterative query refinement for failed searches.</li>
+                                        </ul>
+                                        <h5 class="mt-4 font-bold text-stone-700">Desired Outcome:</h5>
+                                        <p class="mt-2 text-stone-600">A conversational RAG system that can accurately answer complex questions about the corpus.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Phase 3 -->
+                        <div class="timeline-item relative">
+                            <div class="timeline-card pl-16 relative" data-phase="3">
+                                <div class="timeline-marker absolute left-0 top-1 w-10 h-10 bg-stone-300 rounded-full border-4 border-white flex items-center justify-center font-mono font-bold text-white">3</div>
+                                <div class="bg-white rounded-lg border border-stone-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                                    <div class="p-6">
+                                        <h4 class="text-2xl font-bold text-teal-800">Phase 3: Relationship Analysis</h4>
+                                        <p class="mt-2 text-stone-600">Methodology Mapping</p>
+                                    </div>
+                                    <div class="phase-content bg-stone-50 px-6">
+                                        <h5 class="font-bold text-stone-700">Key Objectives:</h5>
+                                        <ul class="mt-2 list-disc list-inside text-stone-600 space-y-1">
+                                            <li>Build a pipeline for Named-Entity Recognition (NER) of methodologies.</li>
+                                            <li>Implement relationship extraction to understand how methodologies connect.</li>
+                                            <li>Generate and populate a knowledge graph with extracted relationships.</li>
+                                            <li>Create an interactive visualization to explore the knowledge graph.</li>
+                                        </ul>
+                                        <h5 class="mt-4 font-bold text-stone-700">Desired Outcome:</h5>
+                                        <p class="mt-2 text-stone-600">An interactive knowledge graph revealing the hidden network of methodologies in our research.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Phase 4 -->
+                        <div class="timeline-item relative">
+                            <div class="timeline-card pl-16 relative" data-phase="4">
+                                <div class="timeline-marker absolute left-0 top-1 w-10 h-10 bg-stone-300 rounded-full border-4 border-white flex items-center justify-center font-mono font-bold text-white">4</div>
+                                <div class="bg-white rounded-lg border border-stone-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                                    <div class="p-6">
+                                        <h4 class="text-2xl font-bold text-teal-800">Phase 4: Experimentation</h4>
+                                        <p class="mt-2 text-stone-600">Hypothesis & Simulation</p>
+                                    </div>
+                                    <div class="phase-content bg-stone-50 px-6">
+                                        <h5 class="font-bold text-stone-700">Key Objectives:</h5>
+                                        <ul class="mt-2 list-disc list-inside text-stone-600 space-y-1">
+                                            <li>Create a hypothesis generation agent to identify research gaps.</li>
+                                            <li>Develop a simulation design agent to synthesize experimental plans.</li>
+                                            <li>Integrate with external simulation frameworks by generating parameter outputs.</li>
+                                        </ul>
+                                        <h5 class="mt-4 font-bold text-stone-700">Desired Outcome:</h5>
+                                        <p class="mt-2 text-stone-600">A co-scientist agent capable of proposing and designing novel, testable experiments.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Timeline End -->
+                </div>
+            </div>
+        </section>
+
+        <section id="analysis" class="py-20 md:py-24 bg-stone-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h3 class="text-3xl md:text-4xl font-bold text-stone-800">Projected Effort Analysis</h3>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-stone-600">
+                        This chart visualizes the estimated distribution of work across key technical domains for each phase. It helps us understand where our focus will be as we progress through the project.
+                    </p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="effort-chart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="start" class="py-20 md:py-24">
+            <div class="container mx-auto px-6 text-center">
+                <h3 class="text-3xl md:text-4xl font-bold text-stone-800">Begin the Project</h3>
+                <p class="mt-4 max-w-2xl mx-auto text-lg text-stone-600">
+                    The blueprint is laid out. By confirming, we officially begin our work. Let's start this exciting project and build our agentic co-scientist.
+                </p>
+                <div class="mt-10">
+                    <button id="start-button" class="bg-teal-700 text-white font-bold text-xl px-12 py-4 rounded-lg shadow-lg hover:bg-teal-800 transition-all duration-300 transform hover:scale-105">
+                        Approve Plan & Begin Phase 1
+                    </button>
+                </div>
+                 <p id="confirmation-message" class="mt-8 text-lg text-teal-800 font-medium h-6 transition-opacity duration-300 opacity-0"></p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-stone-100 border-t border-stone-200">
+        <div class="container mx-auto px-6 py-8 text-center text-stone-500 text-sm">
+            <p>&copy; 2025 Agentic RAG Project | A Co-Scientist Collaboration</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Timeline Interaction
+            const timelineCards = document.querySelectorAll('.timeline-card');
+            timelineCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const content = card.querySelector('.phase-content');
+                    const wasOpen = content.classList.contains('open');
+
+                    // Close all others
+                    document.querySelectorAll('.phase-content.open').forEach(openContent => {
+                        openContent.classList.remove('open');
+                    });
+                    document.querySelectorAll('.timeline-card.active').forEach(activeCard => {
+                        activeCard.classList.remove('active');
+                    });
+
+                    // Open the clicked one if it wasn't already open
+                    if (!wasOpen) {
+                        content.classList.add('open');
+                        card.classList.add('active');
+                    }
+                });
+            });
+
+            // Chart.js Effort Analysis
+            const effortData = {
+                labels: ['Phase 1: Foundation', 'Phase 2: RAG Core', 'Phase 3: Analysis', 'Phase 4: Simulation'],
+                datasets: [
+                    {
+                        label: 'Data Engineering',
+                        data: [70, 20, 10, 10],
+                        backgroundColor: 'rgb(15, 118, 110)', // Darker Teal
+                    },
+                    {
+                        label: 'ML / AI',
+                        data: [20, 60, 60, 60],
+                        backgroundColor: 'rgb(13, 148, 136)', // Main Teal
+                    },
+                    {
+                        label: 'UX / Frontend',
+                        data: [10, 20, 30, 30],
+                        backgroundColor: 'rgb(45, 212, 191)', // Lighter Teal
+                    }
+                ]
+            };
+
+            const effortConfig = {
+                type: 'bar',
+                data: effortData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: false,
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { display: false },
+                            ticks: { color: '#44403c' }
+                        },
+                        y: {
+                            stacked: true,
+                            grid: { color: 'rgba(68, 64, 60, 0.1)' },
+                            ticks: {
+                                color: '#44403c',
+                                callback: function(value) {
+                                    return value + '%'
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            const ctx = document.getElementById('effort-chart').getContext('2d');
+            new Chart(ctx, effortConfig);
+
+            // Start Button Interaction
+            const startButton = document.getElementById('start-button');
+            const confirmationMessage = document.getElementById('confirmation-message');
+            startButton.addEventListener('click', () => {
+                confirmationMessage.textContent = 'Project initiated. Beginning Phase 1: Foundation.';
+                confirmationMessage.style.opacity = '1';
+                startButton.disabled = true;
+                startButton.textContent = 'Project Underway';
+                startButton.classList.remove('hover:bg-teal-800', 'hover:scale-105');
+                startButton.classList.add('bg-gray-500', 'cursor-not-allowed');
+            });
+        });
+    </script>
+</body>
+</html>
