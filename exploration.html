@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Stillness: Interactive Exploration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The SPA is designed as a single-page, top-to-bottom narrative flow to guide the user (my co-scientist) through the project concept. It starts with the high-level vision (Hero), defines our collaboration model, presents the core choices as interactive cards (Exploration Paths), provides an analytical tool to compare these paths (Radar Chart), and concludes with a clear call-to-action (Next Steps). This structure was chosen over a dashboard because the source material is conceptual and exploratory, not data-driven. The goal is to make the ideas tangible and facilitate a decision, turning a static document into an engaging planning tool. -->
+    <!-- Visualization & Content Choices: 
+        1. Report Info: Three exploration avenues (Filter, Generator, Annotation). Goal: Organize and present detailed information interactively. Viz/Method: Interactive Cards using HTML/CSS/JS. Interaction: Click to expand/collapse details. Justification: This keeps the main view clean and allows for progressive disclosure of information, preventing overwhelm and letting the user focus on one concept at a time.
+        2. Report Info: Comparing the trade-offs of the three avenues. Goal: Compare qualitative attributes across multiple subjects. Viz/Method: Radar Chart using Chart.js. Interaction: Hover tooltips for details. Justification: A radar chart is the most effective way to visualize multi-dimensional, qualitative comparisons, offering an at-a-glance summary of the strengths and weaknesses of each proposed path.
+        3. Report Info: Core concepts and section descriptions. Goal: Inform and provide context. Viz/Method: Structured text blocks with clear typography. Interaction: None. Justification: Clear, well-written text is essential for explaining the project's purpose and guiding the user through the application's structure.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f4;
+            color: #44403c;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 50vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 450px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-color 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0d9488;
+            border-bottom-color: #0d9488;
+        }
+        .path-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .path-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+        }
+        .details-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.7s ease-in-out;
+        }
+        .details-content.open {
+            max-height: 500px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-stone-50/80 backdrop-blur-sm sticky top-0 z-50 border-b border-stone-200">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-teal-700">Project Stillness</h1>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#concept" class="nav-link pb-1">Concept</a>
+                <a href="#paths" class="nav-link pb-1">Exploration Paths</a>
+                <a href="#analysis" class="nav-link pb-1">Analysis</a>
+                <a href="#next-steps" class="nav-link pb-1">Next Steps</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="concept" class="py-20 md:py-32 text-center bg-stone-50">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl md:text-6xl font-bold tracking-tight text-stone-800">Choose What You Hear</h2>
+                <p class="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-stone-600">
+                    Welcome, co-scientist. This is the interactive hub for **Project Stillness**. Our goal is to move beyond passive noise cancellation and pioneer **active auditory selection**. This application is our shared workspace to explore the core ideas, compare potential directions, and decide how we'll empower users to shape their own auditory world.
+                </p>
+            </div>
+        </section>
+
+        <section id="paths" class="py-20 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h3 class="text-3xl md:text-4xl font-bold text-stone-800">Three Paths to Stillness</h3>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-stone-600">
+                        Here are the three initial avenues we've identified. Each represents a unique approach to achieving auditory control. Click on any path to expand its details and explore the underlying mechanics, use cases, and challenges.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    
+                    <div id="path-card-1" class="path-card bg-white rounded-xl shadow-sm border border-stone-200 cursor-pointer overflow-hidden">
+                        <div class="p-8">
+                            <div class="flex items-center space-x-4">
+                                <div class="text-4xl">📊</div>
+                                <h4 class="text-2xl font-bold text-teal-700">The Auditory Filter</h4>
+                            </div>
+                            <p class="mt-4 text-stone-600">Focuses on real-time sound manipulation, allowing users to mute or amplify specific sounds in their environment.</p>
+                        </div>
+                        <div id="details-1" class="details-content bg-stone-50 px-8">
+                            <div class="py-6 border-t border-stone-200">
+                                <h5 class="font-semibold text-stone-700">How It Works</h5>
+                                <p class="mt-2 text-sm text-stone-600">A microphone captures ambient sound, and an AI model identifies sources (speech, traffic, music). The user interface provides controls to adjust the volume of each identified category.</p>
+                                <h5 class="mt-4 font-semibold text-stone-700">Example Use Case</h5>
+                                <p class="mt-2 text-sm text-stone-600">A student in a noisy cafe mutes conversations while keeping the background music audible for focus.</p>
+                                <h5 class="mt-4 font-semibold text-stone-700">Key Challenge</h5>
+                                <p class="mt-2 text-sm text-stone-600">Requires significant processing power for accurate, real-time sound separation without latency.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="path-card-2" class="path-card bg-white rounded-xl shadow-sm border border-stone-200 cursor-pointer overflow-hidden">
+                        <div class="p-8">
+                            <div class="flex items-center space-x-4">
+                                <div class="text-4xl">〰️</div>
+                                <h4 class="text-2xl font-bold text-teal-700">Personalized Soundscape</h4>
+                            </div>
+                            <p class="mt-4 text-stone-600">Focuses on generative audio, creating unique soundscapes tailored to the user's mood or desired mental state.</p>
+                        </div>
+                        <div id="details-2" class="details-content bg-stone-50 px-8">
+                             <div class="py-6 border-t border-stone-200">
+                                <h5 class="font-semibold text-stone-700">How It Works</h5>
+                                <p class="mt-2 text-sm text-stone-600">The system uses simple text prompts (e.g., "relax," "focus") or biometric data to generate non-repeating, ambient audio based on principles of music theory and psychoacoustics.</p>
+                                <h5 class="mt-4 font-semibold text-stone-700">Example Use Case</h5>
+                                <p class="mt-2 text-sm text-stone-600">An artist seeking a flow state requests a soundscape that is "calm but with a feeling of forward motion."</p>
+                                <h5 class="mt-4 font-semibold text-stone-700">Key Challenge</h5>
+                                <p class="mt-2 text-sm text-stone-600">Designing a generative algorithm that can produce audio that is consistently meaningful and non-monotonous.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="path-card-3" class="path-card bg-white rounded-xl shadow-sm border border-stone-200 cursor-pointer overflow-hidden">
+                        <div class="p-8">
+                            <div class="flex items-center space-x-4">
+                                <div class="text-4xl">📍</div>
+                                <h4 class="text-2xl font-bold text-teal-700">The Sonic Annotator</h4>
+                            </div>
+                            <p class="mt-4 text-stone-600">Focuses on user perception, allowing people to map and understand their personal reactions to their sound environment.</p>
+                        </div>
+                        <div id="details-3" class="details-content bg-stone-50 px-8">
+                            <div class="py-6 border-t border-stone-200">
+                                <h5 class="font-semibold text-stone-700">How It Works</h5>
+                                <p class="mt-2 text-sm text-stone-600">Users "tag" sounds in their environment as positive, negative, or neutral. Over time, the app builds a personal "sound map," revealing patterns in their auditory experience and sensitivities.</p>
+                                <h5 class="mt-4 font-semibold text-stone-700">Example Use Case</h5>
+                                <p class="mt-2 text-sm text-stone-600">A person with sensory sensitivity identifies which specific sounds are most distressing, empowering them to avoid or mitigate them.</p>
+                                <h5 class="mt-4 font-semibold text-stone-700">Key Challenge</h5>
+                                <p class="mt-2 text-sm text-stone-600">Creating an intuitive and engaging interface that makes the act of sonic annotation feel natural and rewarding.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="analysis" class="py-20 md:py-24 bg-stone-50">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h3 class="text-3xl md:text-4xl font-bold text-stone-800">Comparative Analysis</h3>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-stone-600">
+                        To help our decision, this visualization compares the three paths across four key dimensions. Hover over the points on the chart to see how each path scores in terms of technical difficulty, user agency, creative potential, and real-world impact.
+                    </p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="paths-chart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="next-steps" class="py-20 md:py-24">
+            <div class="container mx-auto px-6 text-center">
+                <h3 class="text-3xl md:text-4xl font-bold text-stone-800">What's Our Next Step?</h3>
+                <p class="mt-4 max-w-2xl mx-auto text-lg text-stone-600">
+                    Our exploration has led us here. Based on the concepts and analysis, which path should we pursue for our first prototype? Your choice will set the direction for the next phase of Project Stillness.
+                </p>
+                <div id="decision-buttons" class="mt-12 flex flex-col md:flex-row justify-center items-center gap-4">
+                    <button data-path="Auditory Filter" class="decision-btn w-full md:w-auto text-lg font-semibold bg-white border-2 border-teal-600 text-teal-700 px-8 py-4 rounded-lg transition-all duration-300 hover:bg-teal-600 hover:text-white hover:shadow-lg">
+                        Prototype the Auditory Filter
+                    </button>
+                    <button data-path="Personalized Soundscape" class="decision-btn w-full md:w-auto text-lg font-semibold bg-white border-2 border-teal-600 text-teal-700 px-8 py-4 rounded-lg transition-all duration-300 hover:bg-teal-600 hover:text-white hover:shadow-lg">
+                        Prototype the Soundscape Generator
+                    </button>
+                    <button data-path="Sonic Annotator" class="decision-btn w-full md:w-auto text-lg font-semibold bg-white border-2 border-teal-600 text-teal-700 px-8 py-4 rounded-lg transition-all duration-300 hover:bg-teal-600 hover:text-white hover:shadow-lg">
+                        Prototype the Sonic Annotator
+                    </button>
+                </div>
+                <p id="confirmation-message" class="mt-8 text-lg text-teal-800 font-medium h-6 transition-opacity duration-300 opacity-0"></p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-stone-100 border-t border-stone-200">
+        <div class="container mx-auto px-6 py-8 text-center text-stone-500">
+            <p>&copy; 2025 Project Stillness | A Co-Scientist Collaboration</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chartData = {
+                labels: ['Technical Complexity', 'User Agency', 'Creative Potential', 'Real-World Impact'],
+                datasets: [{
+                    label: 'Auditory Filter',
+                    data: [9, 6, 3, 9],
+                    fill: true,
+                    backgroundColor: 'rgba(13, 148, 136, 0.2)',
+                    borderColor: 'rgb(13, 148, 136)',
+                    pointBackgroundColor: 'rgb(13, 148, 136)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(13, 148, 136)'
+                }, {
+                    label: 'Personalized Soundscape',
+                    data: [6, 9, 9, 7],
+                    fill: true,
+                    backgroundColor: 'rgba(20, 83, 45, 0.2)',
+                    borderColor: 'rgb(20, 83, 45)',
+                    pointBackgroundColor: 'rgb(20, 83, 45)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(20, 83, 45)'
+                }, {
+                    label: 'Sonic Annotator',
+                    data: [3, 8, 6, 6],
+                    fill: true,
+                    backgroundColor: 'rgba(124, 58, 237, 0.2)',
+                    borderColor: 'rgb(124, 58, 237)',
+                    pointBackgroundColor: 'rgb(124, 58, 237)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(124, 58, 237)'
+                }]
+            };
+
+            const chartConfig = {
+                type: 'radar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    elements: {
+                        line: {
+                            borderWidth: 3
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(68, 64, 60, 0.2)'
+                            },
+                            grid: {
+                                color: 'rgba(68, 64, 60, 0.2)'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 14,
+                                    weight: '500'
+                                },
+                                color: '#44403c'
+                            },
+                            ticks: {
+                                backdropColor: '#f8f7f4',
+                                color: '#57534e',
+                                stepSize: 2,
+                                font: {
+                                    weight: '500'
+                                }
+                            },
+                            min: 0,
+                            max: 10
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14,
+                                    weight: '500'
+                                },
+                                color: '#44403c'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.r !== null) {
+                                        label += context.parsed.r;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            const ctx = document.getElementById('paths-chart').getContext('2d');
+            new Chart(ctx, chartConfig);
+
+            const pathCards = document.querySelectorAll('[id^="path-card-"]');
+            pathCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const detailsId = card.id.replace('path-card-', 'details-');
+                    const detailsContent = document.getElementById(detailsId);
+                    
+                    const wasOpen = detailsContent.classList.contains('open');
+
+                    document.querySelectorAll('.details-content.open').forEach(openDetail => {
+                        openDetail.classList.remove('open');
+                    });
+                    
+                    if (!wasOpen) {
+                        detailsContent.classList.add('open');
+                    }
+                });
+            });
+
+            const decisionButtons = document.querySelectorAll('.decision-btn');
+            const confirmationMessage = document.getElementById('confirmation-message');
+            decisionButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const chosenPath = button.dataset.path;
+                    confirmationMessage.textContent = `Excellent. Let's begin prototyping the ${chosenPath}.`;
+                    confirmationMessage.style.opacity = '1';
+
+                    decisionButtons.forEach(btn => {
+                        btn.classList.remove('bg-teal-600', 'text-white', 'shadow-lg');
+                        btn.classList.add('bg-white', 'text-teal-700');
+                    });
+
+                    button.classList.add('bg-teal-600', 'text-white', 'shadow-lg');
+                    button.classList.remove('bg-white', 'text-teal-700');
+                });
+            });
+            
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.5
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>
